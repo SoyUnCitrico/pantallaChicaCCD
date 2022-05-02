@@ -1,5 +1,5 @@
-let intervaloFetch = 60000;
-let intervaloPosition = 1000;
+let intervaloFetch = 360000;
+let intervaloPosition = 2000;
 let contador = 0;
 let posActividad = 0;
 let sketchContainer = document.getElementById("sketchContainer");
@@ -42,8 +42,7 @@ function parseData (data) {
 
     act.fechaInicio = actividadRecomendada.fechaInicioGlobal;
     act.fechaFinal = actividadRecomendada.fechaFinalGlobal;
-    
-    // act.resumenSesiones = actividadRecomendada.resumenSesiones;
+    act.resumenSesiones = actividadRecomendada.resumenSesiones ? actividadRecomendada.resumenSesiones : "";
     // act.personasInvitadas = actividadRecomendada.personasInvitadas;
     // act.personaOrganizadora = actividadRecomendada.personaOrganizadora;
 
@@ -113,15 +112,21 @@ function draw() {
     // colorearFondo();
     dibujarFondoTitulo();
     dibujarTitulo(actividadesRec[posActividad].titulo, 24, 0);
-    // if(actividadesRec[posActividad].subtitulo != "") dibujarSubtitulo(actividadesRec[posActividad].subtitulo, 18, 0);
-    if(actividadesRec[posActividad].intro != "") dibujarIntro(actividadesRec[posActividad].intro, 16, 0);
-    // dibujar
+    // Dibujar el subtitulo de la actividad o el intro
+    if(actividadesRec[posActividad].intro != "") dibujarIntro(actividadesRec[posActividad].intro, 14, 0);
+    else {
+      if(actividadesRec[posActividad].subtitulo != "") dibujarSubtitulo(actividadesRec[posActividad].subtitulo, 18, 0);
+    }
+    // Dibujar la hora por resumen o fecha de inifio y final
+    if(actividadesRec[posActividad].resumenSesiones != "") dibujarResumenHora(actividadesRec[posActividad].resumenSesiones, 12, 0);
+    else dibujarHora(actividadesRec[posActividad].fechaInicio, actividadesRec[posActividad].fechaFinal,12,0);
+
   } else {
     push();
     fill(0);
     textAlign(CENTER,CENTER);
-    textSize(32);
-    text("UNDEFINED", width/2, height/2);
+    textSize(20);
+    text("CARGANDO INFORMACIÓN...", width/2, height/2);
     pop();
   }
 }
@@ -142,7 +147,7 @@ const dibujarTitulo = (titulo, size, color) => {
       fill(color);
       textStyle(ITALIC);
       textFont("Arial");
-      text(subtitulo, initFondo.x + (size * factorX/2), endFondo.y * 0.4, endFondo.x , 200);
+      text(subtitulo, initFondo.x + (size * factorX), endFondo.y * 0.45, endFondo.x , 200);
     pop();
     // console.log(subtitulo)
   }
@@ -153,9 +158,44 @@ const dibujarTitulo = (titulo, size, color) => {
     fill(color);
     // textStyle(ITALIC);
     textFont("Arial");
-    text(intro, initFondo.x + (size * factorX/2), endFondo.y * 0.45, endFondo.x - size * factorX * 2, 200);
+    // textFont("Phill Gothic");
+    text(intro, initFondo.x + (size * factorX), endFondo.y * 0.45, endFondo.x - (size * factorX * 3), 200);
     pop();
     // console.log(subtitulo)
+}
+
+const dibujarResumenHora = (resumen, size, col) => {
+  push();
+  textSize(size);
+  fill(col);
+  textStyle(BOLDITALIC);
+  textFont("Arial");
+  // textFont("Phill Gothic");
+  text(resumen, initFondo.x + (size * factorX*13), endFondo.y * 0.78, endFondo.x - size * factorX * 14, 100);
+  pop();
+}
+
+const dibujarHora = (horaInit, horaEnd, size, col) => {
+  let initFormat = new Date(horaInit);
+  let endFormat = new Date(horaEnd);
+  let initString = `${initFormat.getDate()} de ${putMonth(initFormat.getMonth())}`;
+  let endString = ` al ${endFormat.getDate()} de ${putMonth(endFormat.getMonth())} de ${endFormat.getFullYear()},`;
+  let horaString = ` a partir de las ${initFormat.getHours().toString().padStart(2, '0')}:${initFormat.getMinutes().toString().padStart(2, '0')} hrs`;
+  let compareEnd =`${endFormat.getDate()} de ${putMonth(endFormat.getMonth())}`;
+
+  push();
+  textSize(size);
+  fill(col);
+  // textAlign(RIGHT, CENTER);
+  textStyle(BOLDITALIC);
+  textFont("Arial");
+  // textFont("Phill Gothic");
+  if(compareEnd != initString) {
+    text((initString + endString + horaString), initFondo.x + (size * factorX*13), endFondo.y * 0.78, endFondo.x - size * factorX * 15, 200);
+  } else {
+    text(`${initString} de ${endFormat.getFullYear()},${horaString}`, initFondo.x + (size * factorX*13), endFondo.y * 0.78, endFondo.x - size * factorX * 15, 200);
+  }
+  pop();
 }
 
 const imagenFondo = (picture) =>{
@@ -175,8 +215,38 @@ const imagenFull= (picture) =>{
 const dibujarFondoTitulo = () => {
   push();
     rectMode(CORNERS)
-    fill(250,250,250,200);
+    fill(255,255,255,220);
     noStroke();
     rect(initFondo.x, initFondo.y, endFondo.x, endFondo.y);
   pop(); 
+}
+
+const putMonth = (month) => {
+  switch (month) {
+    case 0:
+      return "enero";      
+    case 1:
+      return "febrero";      
+    case 2:
+      return "marzo";      
+    case 3:
+      return "abril";      
+    case 4:
+      return "mayo";      
+    case 5:
+      return "junio";      
+    case 6:
+      return "julio";      
+    case 7:
+      return "agosto";      
+    case 8:
+      return "septiembre";      
+    case 9:
+      return "octubre";      
+    case 10:
+      return "noviembre";      
+    case 11:
+      return "diciembre";   
+    default:
+      return "Mes";  }
 }
